@@ -41,11 +41,14 @@
 
                 <div>
                     <label class="block text-xs uppercase tracking-widest text-stone-500 font-medium mb-2">Image Web Link (URL)</label>
-                    <input type="url" id="image-url" required placeholder="https://images.unsplash.com/... or Imgur link" 
+                    <input type="url" id="image-url" required placeholder="https://images.unsplash.com/..." 
                            class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-300 bg-stone-50/50 transition-all text-sm">
-                    <p class="text-[11px] text-stone-400 mt-1.5 font-light leading-normal">
-                        Tip: Upload your artwork photo to a free hosting site like Imgur or Postimages, right-click the image to copy its direct address, and paste it here!
-                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-stone-500 font-medium mb-2 font-semibold text-rose-400">Studio Passkey</label>
+                    <input type="password" id="password" required placeholder="••••••••" 
+                           class="w-full px-4 py-3 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 bg-rose-50/20 transition-all text-sm font-mono">
                 </div>
 
                 <button type="submit" id="submit-btn" 
@@ -60,8 +63,7 @@
     <div class="py-6 text-center text-xs text-stone-300 font-light">Studio Workspace Console</div>
 
     <script>
-        // CRITICAL: Replace this string with your exact live Hugging Face Space API URL
-        const BACKEND_URL = "https://abhinab123434234-shikhaartgallery.hf.space"; 
+        const BACKEND_URL = "https://yourusername-yourspacename.hf.space"; 
 
         async function submitArtwork(event) {
             event.preventDefault();
@@ -70,8 +72,8 @@
             const title = document.getElementById("title").value;
             const description = document.getElementById("description").value;
             const imageUrl = document.getElementById("image-url").value;
+            const password = document.getElementById("password").value;
 
-            // Visual feedback loop
             submitBtn.innerText = "Publishing Art...";
             submitBtn.disabled = true;
 
@@ -79,6 +81,7 @@
             formData.append("title", title);
             formData.append("description", description);
             formData.append("image_url", imageUrl);
+            formData.append("password", password); // <-- Send password to backend
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/upload`, {
@@ -89,12 +92,14 @@
                 if (response.ok) {
                     alert("✨ Your masterpiece was successfully added to the collection!");
                     document.getElementById("upload-form").reset();
+                } else if (response.status === 401) {
+                    alert("❌ Incorrect passkey! Access denied.");
                 } else {
-                    alert("Something went wrong with the server. Please check the backend connection.");
+                    alert("Something went wrong with the server.");
                 }
             } catch (err) {
                 console.error("Submission error:", err);
-                alert("Could not communicate with the backend. Is your Hugging Face Space running?");
+                alert("Could not communicate with the backend.");
             } finally {
                 submitBtn.innerText = "Publish to Gallery";
                 submitBtn.disabled = false;
