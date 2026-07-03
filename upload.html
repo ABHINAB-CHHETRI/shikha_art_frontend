@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Studio Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf7f5; }
+        h1, h2, .serif-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="text-stone-800 min-h-screen flex flex-col justify-between">
+
+    <div class="w-full max-w-4xl mx-auto px-6 pt-8 flex justify-between items-center">
+        <a href="index.html" class="text-xs uppercase tracking-widest text-stone-400 hover:text-rose-400 transition-colors duration-300">← Back To Gallery View</a>
+        <span class="text-xs uppercase tracking-widest font-semibold text-rose-400 bg-rose-50 px-3 py-1 rounded-full">Studio Mode</span>
+    </div>
+
+    <main class="max-w-md w-full mx-auto px-6 py-12 my-auto">
+        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-rose-100 shadow-[0_20px_50px_rgba(253,230,233,0.5)]">
+            
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-normal text-stone-950 mb-2">Upload New Art</h2>
+                <p class="text-stone-400 text-sm font-light">Add a stunning new masterpiece to your digital storefront.</p>
+            </div>
+
+            <form id="upload-form" onsubmit="submitArtwork(event)" class="space-y-6">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-stone-500 font-medium mb-2">Artwork Title</label>
+                    <input type="text" id="title" required placeholder="e.g., Whispers in Gold" 
+                           class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-300 bg-stone-50/50 transition-all text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-stone-500 font-medium mb-2">Description / Medium</label>
+                    <textarea id="description" rows="3" placeholder="e.g., Acrylic and gold leaf on stretched canvas, 2026." 
+                              class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-300 bg-stone-50/50 transition-all text-sm resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-stone-500 font-medium mb-2">Image Web Link (URL)</label>
+                    <input type="url" id="image-url" required placeholder="https://images.unsplash.com/... or Imgur link" 
+                           class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-300 bg-stone-50/50 transition-all text-sm">
+                    <p class="text-[11px] text-stone-400 mt-1.5 font-light leading-normal">
+                        Tip: Upload your artwork photo to a free hosting site like Imgur or Postimages, right-click the image to copy its direct address, and paste it here!
+                    </p>
+                </div>
+
+                <button type="submit" id="submit-btn" 
+                        class="w-full bg-stone-950 hover:bg-rose-950 text-white font-medium py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wide text-sm mt-4">
+                    Publish to Gallery
+                </button>
+            </form>
+
+        </div>
+    </main>
+
+    <div class="py-6 text-center text-xs text-stone-300 font-light">Studio Workspace Console</div>
+
+    <script>
+        // CRITICAL: Replace this string with your exact live Hugging Face Space API URL
+        const BACKEND_URL = "https://abhinab123434234-shikhaartgallery.hf.space"; 
+
+        async function submitArtwork(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById("submit-btn");
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const imageUrl = document.getElementById("image-url").value;
+
+            // Visual feedback loop
+            submitBtn.innerText = "Publishing Art...";
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append("title", title);
+            formData.append("description", description);
+            formData.append("image_url", imageUrl);
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("✨ Your masterpiece was successfully added to the collection!");
+                    document.getElementById("upload-form").reset();
+                } else {
+                    alert("Something went wrong with the server. Please check the backend connection.");
+                }
+            } catch (err) {
+                console.error("Submission error:", err);
+                alert("Could not communicate with the backend. Is your Hugging Face Space running?");
+            } finally {
+                submitBtn.innerText = "Publish to Gallery";
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
